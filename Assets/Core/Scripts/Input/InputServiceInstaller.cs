@@ -10,6 +10,7 @@ namespace Core.Scripts.Character.Input
         
         public override void InstallBindings()
         {
+            
             if(Application.isEditor || Application.platform != RuntimePlatform.Android)
                 Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(keyboardInputControllerPrefab).AsSingle().NonLazy();
             else

@@ -1,0 +1,3 @@
+[submodule "Assets/MyBox"]
+	path = Assets/MyBox
+	url = https://github.com/Deadcows/MyBox.git

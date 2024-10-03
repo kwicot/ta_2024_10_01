@@ -1,4 +1,5 @@
 ﻿using Core.Scripts.Character.Input;
+using MyBox;
 using UnityEngine;
 using Zenject;
 
@@ -10,12 +11,11 @@ namespace Core.Scripts.Character
         [SerializeField] private float moveSpeed;
         [SerializeField] private float acceleration = 10f;
         [SerializeField] private float slopeLimit = 45f;
-
         
         [SerializeField] private Vector3 rayOffset;
         [SerializeField] private float rayDistance;
         [SerializeField] private float rayAngle;
-
+        
         [Inject] private IInput _input;
 
         Rigidbody _rb;
@@ -55,7 +55,6 @@ namespace Core.Scripts.Character
                 Vector3 targetPosition = _rb.position + Velocity * moveSpeed * Time.fixedDeltaTime;
                 _rb.MovePosition(targetPosition);
             }
-            else Debug.Log("Cant move");
         }
 
         
@@ -64,12 +63,12 @@ namespace Core.Scripts.Character
             Vector3 startPosition = transform.position + rayOffset;
             Quaternion rotation = Quaternion.AngleAxis(rayAngle, transform.right);
             Vector3 rotatedDirection = rotation * transform.forward;
+            
             Ray ray = new Ray(startPosition, rotatedDirection);
             Debug.DrawRay(startPosition, rotatedDirection * rayDistance, Color.red);
             
             if (Physics.Raycast(ray, out RaycastHit hitInfo, rayDistance))
             {
-                Debug.Log($"Hit {hitInfo.transform.tag}");
                 if (hitInfo.transform.CompareTag("Hexagon"))
                     return true;
             }
