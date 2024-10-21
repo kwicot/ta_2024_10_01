@@ -8,7 +8,7 @@ namespace Core.Scripts
         [SerializeField] private Transform target;
         [SerializeField] private Vector3 offset;
         
-        [SerializeField][Range(0.01f,1f)] private float lerpSpeed;
+        [SerializeField] [Range(0.01f,1f)] private float lerpSpeed;
         [SerializeField] [Range(0.01f, 1f)] private float rotationSpeed;
        
 

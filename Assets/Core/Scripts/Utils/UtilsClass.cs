@@ -1,7 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using UnityEngine;
 using Random = System.Random;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace Kwicot.Core.Scripts.Utils
 {
@@ -44,7 +50,6 @@ namespace Kwicot.Core.Scripts.Utils
             }
             return advertisingID;
         }
-        
         public static void Shuffle<T> (T[] array)
         {
             Random rng = new Random();
@@ -57,7 +62,6 @@ namespace Kwicot.Core.Scripts.Utils
                 array[k] = temp;
             }
         }
-        
         public static T RoundToNearest<T>(T value, T nearest) where T : struct, IConvertible
         {
             double doubleValue = Convert.ToDouble(value);
@@ -66,6 +70,28 @@ namespace Kwicot.Core.Scripts.Utils
             double result = Math.Round(doubleValue / doubleNearest) * doubleNearest;
 
             return (T)Convert.ChangeType(result, typeof(T));
+        }
+        
+        public static string GenerateUniqueID()
+        {
+            Guid id = Guid.NewGuid();
+            return id.ToString();
+        }
+
+        public static string SaveScriptableObjectItem(ScriptableObject obj, string folderName, string fileName)
+        {
+            string folderPath = Path.Combine(Constants.ResourcesFolderPath, folderName);
+            string path = Path.Combine(folderPath, $"{fileName}.asset");
+                
+            if (!AssetDatabase.IsValidFolder(folderPath))
+            {
+                AssetDatabase.CreateFolder(folderPath, Constants.ItemsFolderName);
+            }
+
+            AssetDatabase.CreateAsset(obj, path);
+            AssetDatabase.SaveAssets();
+
+            return path;
         }
     }
 }
