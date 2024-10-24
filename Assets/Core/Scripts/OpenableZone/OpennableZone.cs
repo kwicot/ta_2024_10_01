@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Core.Items;
 using Core.OpennableZones;
 using Core.Scripts;
+using Core.Scripts.Installers;
 using Core.Scripts.Item;
 using DG.Tweening;
 using Kwicot.Core.Scripts.Utils;
@@ -23,7 +24,7 @@ namespace Core
         [SerializeField] private TriggerZone showTrigger;
         [SerializeField] private Config config;
 
-        [Inject] private ZoneWindow zoneWindow;
+        [Inject] private ZoneWindowPool zoneWindowPool;
         [Inject] ItemsAnimationController itemsAnimationController; 
         
         private const int _itemsSpawnPerSecond = 10;
@@ -41,6 +42,8 @@ namespace Core
         public Transform OpennableTransform => openableHex.transform;
 
         public UnityAction OnCollectedItemsChanged;
+
+        private ZoneWindow _zoneWindow;
         
         
         
@@ -151,12 +154,14 @@ namespace Core
 
         void ShowWindow()
         {
-            zoneWindow.Show(this);
+            _zoneWindow = zoneWindowPool.GetZoneWindow();
+            _zoneWindow.Show(this);
         }
 
         async Task HideWindow()
         {
-            await zoneWindow.Hide();
+            await _zoneWindow.Hide();
+            zoneWindowPool.ReturnZoneWindow(_zoneWindow);
         }
 
         void ShowFillPanel()

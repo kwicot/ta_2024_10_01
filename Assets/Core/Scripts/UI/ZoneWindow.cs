@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Items;
 using Core.Scripts.Character;
 using DG.Tweening;
-using JetBrains.Annotations;
 using Kwicot.Core.Scripts.Utils;
 using Kwicot.Core.Scripts.Utils.SimplePoolSystem;
 using UnityEngine;
@@ -119,7 +117,9 @@ namespace Core
                 rootPanel.transform.position = Vector3.Lerp(rootPanel.transform.position, _targetPosition, lerpSpeed);
             }
         }
-
         
+        public class Factory : PlaceholderFactory<ZoneWindow>
+        {
+        }
     }
 }
