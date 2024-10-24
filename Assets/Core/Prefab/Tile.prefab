@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6888949316527480433}
   - component: {fileID: 2928806126837936815}
   - component: {fileID: 410247104939637613}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bottom
   m_TagString: Hexagon
   m_Icon: {fileID: 0}
@@ -206,8 +206,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3157693472752795944}
   - component: {fileID: 2068289948626158042}
-  - component: {fileID: 8851848439641233245}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tile
   m_TagString: Hexagon
   m_Icon: {fileID: 0}
@@ -243,19 +242,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rootVisual: {fileID: 7774595414677129242}
---- !u!114 &8851848439641233245
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2349104218225269650}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5cf0679d43e4b7bb90bec7ad1f41fce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uniqueID: 357cdbb9-c817-48cb-aa8b-07b136d51e83
 --- !u!1 &7774595414677129242
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,7 +251,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 297579812473556088}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}

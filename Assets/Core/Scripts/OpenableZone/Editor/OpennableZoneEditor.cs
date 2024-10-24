@@ -11,7 +11,7 @@ namespace Core.Scripts.OpenableZone.Editor
         static int _rayDistance = 2;
         static int _angle = 60;
         static int _angleOffset = 30;
-        private static float _rayOffsetY = -2;
+        private static float _rayOffsetY = -.5f;
         
         private bool _isHighlighted = false;
         private float _highlightTime = 2f;
@@ -47,7 +47,6 @@ namespace Core.Scripts.OpenableZone.Editor
                 var neighbours = GetNeighbours(opennableZone.transform.parent);
                 selectedNeighbour++;
 
-                Debug.Log($"Selected {selectedNeighbour} count {neighbours.Count}");
                 
                 if (selectedNeighbour >= neighbours.Count)
                     selectedNeighbour = 0;
@@ -55,7 +54,6 @@ namespace Core.Scripts.OpenableZone.Editor
                 if (neighbours.Count > 0)
                 {
                     _highlightObject = neighbours[selectedNeighbour];
-                    Debug.Log($"Select{_highlightObject.name}");
 
                     opennableZone.SetTargetHex(_highlightObject);
                     StartHighlight();

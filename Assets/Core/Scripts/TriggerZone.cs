@@ -13,7 +13,7 @@ namespace Core.Scripts
         public UnityAction<Transform> onTriggerExit;
         public UnityAction<Transform> onTriggerStay;
 
-        private string _triggerTag;
+        [SerializeField][HideInInspector]private string _triggerTag;
 
         private void OnTriggerEnter(Collider other)
         {
@@ -33,8 +33,16 @@ namespace Core.Scripts
                 onTriggerStay?.Invoke(other.transform);
         }
 
-        bool TagInLayer(GameObject gameObject) =>
-            gameObject.layer == triggerLayer && gameObject.CompareTag(_triggerTag);
+        bool TagInLayer(GameObject gameObject)
+        {
+            var layer = gameObject.layer;
+            if (((1 << layer) & triggerLayer.value) != 0)
+            {
+                return gameObject.CompareTag(_triggerTag);
+            }
+
+            return false;
+        }
 
 #if UNITY_EDITOR
         [UnityEditor.CustomEditor(typeof(TriggerZone))]
@@ -44,7 +52,13 @@ namespace Core.Scripts
             {
                 DrawDefaultInspector();
                 TriggerZone triggerZone = (TriggerZone)target;
+
+                var currentTag = triggerZone._triggerTag;
+                
                 triggerZone._triggerTag = EditorGUILayout.TagField("Trigger tag", triggerZone._triggerTag);
+                
+                if(currentTag != triggerZone._triggerTag)
+                    EditorUtility.SetDirty(triggerZone);
             }
         }
         

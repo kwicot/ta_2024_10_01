@@ -93,5 +93,36 @@ namespace Kwicot.Core.Scripts.Utils
 
             return path;
         }
+        
+        
+        public static Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 target, float angle)
+        {
+            Vector3 direction = target - start;
+            direction.y = 0; 
+            float distance = direction.magnitude;
+
+            float heightDifference = target.y - start.y;
+
+            float angleRad = angle * Mathf.Deg2Rad;
+
+            float velocitySquared = (Physics.gravity.y * distance * distance) / 
+                                    (2 * (heightDifference - distance * Mathf.Tan(angleRad)) * Mathf.Pow(Mathf.Cos(angleRad), 2));
+
+            if (velocitySquared <= 0)
+            {
+                Debug.LogWarning("Cant throw. Not enough data");
+                return Vector3.zero;
+            }
+
+            float initialVelocity = Mathf.Sqrt(velocitySquared);
+
+            Vector3 velocityXZ = direction.normalized * initialVelocity * Mathf.Cos(angleRad);
+            float velocityY = initialVelocity * Mathf.Sin(angleRad);
+
+            Vector3 resultVelocity = velocityXZ;
+            resultVelocity.y = velocityY;
+
+            return resultVelocity;
+        }
     }
 }

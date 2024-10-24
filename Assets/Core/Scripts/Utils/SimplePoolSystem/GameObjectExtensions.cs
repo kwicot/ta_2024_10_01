@@ -19,6 +19,20 @@ namespace Kwicot.Core.Scripts.Utils.SimplePoolSystem
 
             return null;
         }
+        
+        public static GameObject Spawn(this GameObject gameObject)
+        {
+            if (gameObject != null)
+            {
+                var obj = LazyPoolManager.Instance.Get(gameObject);
+
+                obj.SetActive(true);
+                
+                return obj;
+            }
+
+            return null;
+        }
 
         public static void Release(this GameObject gameObject)
         {

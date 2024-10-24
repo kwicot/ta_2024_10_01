@@ -21,7 +21,9 @@ namespace Core
 
             return false;
         }
-        public void AddItem(string id, int count)
+
+        public void AddItem(ItemSO item, int count = 1) => AddItem(item.UID, count);
+        public void AddItem(string id, int count = 1)
         {
             if (ItemsMap.ContainsKey(id))
             {
@@ -35,7 +37,8 @@ namespace Core
             OnItemsChanged?.Invoke();
         }
 
-        public void RemoveItem(string id, int count)
+        public void RemoveItem(ItemSO itemSo, int count = 1) => RemoveItem(itemSo.UID, count);
+        public void RemoveItem(string id, int count = 1)
         {
             if (ItemsMap.ContainsKey(id))
             {

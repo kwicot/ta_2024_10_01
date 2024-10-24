@@ -44,6 +44,10 @@ namespace Core.Items.Editor
                     var path = AssetDatabase.GetAssetPath(item);
                     var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
                     
+                    EditorUtility.SetDirty(item);
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                    
                     //Rename
                     if (fileNameWithoutExtension != item.ItemName)
                     {
@@ -61,6 +65,8 @@ namespace Core.Items.Editor
                         }
                     }
                 }
+                
+                ItemDatabaseSO.Save();
             }
 
             EditorGUILayout.EndHorizontal();

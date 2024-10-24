@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa35199455c24154be49844e27a311b9, type: 3}
   m_Name: Stone
   m_EditorClassIdentifier: 
+  UID: 7314aa92-95f2-41a8-b25d-11eaaaa2cc84
+  ItemName: Stone
+  ItemDisplayName: Stone
+  ItemDescription: 
+  Sprite: {fileID: 21300000, guid: e5ef050f65a94e5479df65a8e98adbb4, type: 3}
+  Prefab: {fileID: 6304224552061744445, guid: c2f1a4a2bdab07a4d8a9e32b0444235c, type: 3}

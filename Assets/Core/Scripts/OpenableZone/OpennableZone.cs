@@ -1,54 +1,180 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Core.Items;
 using Core.OpennableZones;
 using Core.Scripts;
+using Core.Scripts.Item;
+using DG.Tweening;
+using Kwicot.Core.Scripts.Utils;
 using Kwicot.Core.Scripts.Utils.SimplePoolSystem;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
+using Zenject;
 
 namespace Core
 {
     public class OpennableZone : MonoBehaviour
     {
         [SerializeField] HexController openableHex;
-        [SerializeField] OpennableZone openableZone;
         
-        [SerializeField] private TriggerZone triggerZone;
+        [SerializeField] private TriggerZone fillTrigger;
+        [SerializeField] private TriggerZone showTrigger;
         [SerializeField] private Config config;
+
+        [Inject] private ZoneWindow zoneWindow;
+        [Inject] ItemsAnimationController itemsAnimationController; 
         
         private const int _itemsSpawnPerSecond = 10;
-        private const int _itemThrowAngle = 40;
         private Vector3 _itemSpawnOffset = new Vector3(0, 1f, 0);
-        
 
         private Dictionary<string, int> _collectedItemsMap;
 
         private Coroutine _fillCoroutine;
+        
         private Inventory _targetInventory;
+        
+        public Dictionary<string, int> CollectedItemsMap => _collectedItemsMap;
+        public Config Config => config;
+        
+        public Transform OpennableTransform => openableHex.transform;
 
+        public UnityAction OnCollectedItemsChanged;
+        
+        
+        
         private void Awake()
         {
-            triggerZone.onTriggerEnter += OnEnter;
-            triggerZone.onTriggerExit += OnExit;
-            triggerZone.onTriggerStay += OnStay;
+            fillTrigger.onTriggerEnter += OnEnterFillTrigger;
+            fillTrigger.onTriggerExit += OnExitFillTrigger;
+
+            showTrigger.onTriggerEnter += OnEnterShowTrigger;
+            showTrigger.onTriggerExit += OnExitShowTrigger;
+
+            _collectedItemsMap = new Dictionary<string, int>();
         }
 
         private void Start()
         {
-            openableHex.SetEnable(false);
+            openableHex.SetEnable(false, false);
         }
 
-        public void SetTargetHex(GameObject go)
+
+        IEnumerator FillUpdateCoroutine()
         {
-            if (go.TryGetComponent(out HexController hexController))
+            Debug.Log("StartFillCoroutine");
+            float fillInterval = 1f / _itemsSpawnPerSecond;
+
+            foreach (var itemCountModel in config.Items)
             {
-                openableHex = hexController;
+                if (!_targetInventory.Contains(itemCountModel.ItemSO))
+                {
+                    Debug.Log($"Cant find {itemCountModel.ItemSO.ItemDisplayName} ion inventory");
+                    continue;
+                }
+
+                if (_collectedItemsMap.TryGetValue(itemCountModel.ItemSO.UID, out int count))
+                {
+                    int need = itemCountModel.Count - count;
+                    if (need <= 0)
+                    {
+                        Debug.Log($"Need {itemCountModel.ItemSO.ItemDisplayName} <= 0");
+                        continue;
+                    }
+
+                    for (int i = 0; i < need; i++)
+                    {
+                        Debug.Log("Spawn");
+
+                        SpawnItem(itemCountModel.ItemSO);
+                        _targetInventory.RemoveItem(itemCountModel.ItemSO);
+
+                        yield return new WaitForSeconds(fillInterval);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < itemCountModel.Count; i++)
+                    {
+                        Debug.Log("Spawn");
+
+                        SpawnItem(itemCountModel.ItemSO);
+                        _targetInventory.RemoveItem(itemCountModel.ItemSO);
+
+                        yield return new WaitForSeconds(fillInterval);
+                    }
+                }
             }
+
+            Debug.Log("End fillCoroutine");
         }
 
-        private void OnStay(Transform arg) { }
+        void Fill(ItemSO item)
+        {
+            if(!_collectedItemsMap.TryAdd(item.UID, 1))
+                _collectedItemsMap[item.UID]++;
+            
+            OnCollectedItemsChanged?.Invoke();
 
-        private void OnExit(Transform arg)
+            foreach (var itemCountModel in config.Items)
+            {
+                if(!_collectedItemsMap.TryGetValue(itemCountModel.ItemSO.UID, out int count) || count < itemCountModel.Count)
+                    return;
+            }
+            
+            OnFilled();
+        }
+
+        async void OnFilled()
+        {
+            await openableHex.SetEnable(true);
+            await HideWindow();
+            await HideFillPanel();
+            
+            Destroy(fillTrigger.gameObject);
+            Destroy(showTrigger.gameObject);
+            Destroy(this.gameObject);
+        }
+
+        async void SpawnItem(ItemSO item)
+        {
+            var obj = item.Prefab.Spawn(_targetInventory.transform.position + _itemSpawnOffset, Quaternion.identity);
+            obj.transform.position += _itemSpawnOffset;
+            
+            Vector3 targetPosition = OpennableTransform.position - Vector3.down;
+            await itemsAnimationController.Throw(obj, targetPosition);
+            obj.Release();
+            
+            Fill(item);
+        }
+
+        void ShowWindow()
+        {
+            zoneWindow.Show(this);
+        }
+
+        async Task HideWindow()
+        {
+            await zoneWindow.Hide();
+        }
+
+        void ShowFillPanel()
+        {
+            fillTrigger.gameObject.SetActive(true);
+            fillTrigger.transform.DOScale(Vector3.one, Constants.ShowHideAnimationDuration);
+        }
+
+        async Task HideFillPanel()
+        {
+            await fillTrigger.transform.DOScale(Vector3.zero, Constants.ShowHideAnimationDuration).AsyncWaitForCompletion();
+            fillTrigger.gameObject.SetActive(false);
+        }
+        
+        
+        #region TriggerCallbacks
+
+        private void OnExitFillTrigger(Transform arg)
         {
             if (_fillCoroutine != null)
                 StopCoroutine(_fillCoroutine);
@@ -57,95 +183,38 @@ namespace Core
             _targetInventory = null;
         }
 
-        private void OnEnter(Transform arg)
+        private void OnEnterFillTrigger(Transform arg)
         {
             _targetInventory = arg.GetComponent<Inventory>();
+            
             if (_targetInventory != null)
-            {
-                _fillCoroutine = StartCoroutine(Fill());
-            }
-        }
-
-        IEnumerator Fill()
-        {
-            float spawnInterval = _itemsSpawnPerSecond / 60f;
-
-            while (true)
-            {
-                foreach (var item in config.Items)
-                {
-                    if (!_targetInventory.Contains(item.ItemSO))
-                    {
-                        continue;
-                    }
-
-                    if (_collectedItemsMap.TryGetValue(item.ItemSO.UID, out var currentCount))
-                    {
-                        var itemsToCollect = item.Count - currentCount;
-
-                        if (itemsToCollect <= 0)
-                        {
-                            continue;
-                        }
-
-                        _collectedItemsMap[item.ItemSO.UID]++;
-                    }
-                    else
-                    {
-                        _collectedItemsMap[item.ItemSO.UID] = 1;
-                    }
-
-                    SpawnItem(item.ItemSO);
-                    yield return new WaitForSecondsRealtime(spawnInterval);
-                }
-            }
-        }
-
-        void SpawnItem(ItemSO item)
-        {
-            var obj = item.Prefab.Spawn(_targetInventory.transform.position + _itemSpawnOffset, Quaternion.identity);
-            if (obj.TryGetComponent(out Rigidbody rigidbody))
-            {
-                rigidbody.velocity = Vector3.zero;
-                
-                Vector3 force = CalculateLaunchVelocity(obj.transform.position, openableHex.transform.position, _itemThrowAngle);
-
-                rigidbody.AddForce(force, ForceMode.VelocityChange);
-            }
-            else
-            {
-                Debug.LogWarning($"Cant kick item. Cant find [Rigidbody] component on object [{obj.name}]");
+            { 
+                _fillCoroutine = StartCoroutine(FillUpdateCoroutine());
             }
         }
         
-        private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 target, float angle)
+        private void OnEnterShowTrigger(Transform arg0)
         {
-            Vector3 direction = target - start;
-            direction.y = 0; 
-            float distance = direction.magnitude;
-
-            float heightDifference = target.y - start.y;
-
-            float angleRad = angle * Mathf.Deg2Rad;
-
-            float velocitySquared = (Physics.gravity.y * distance * distance) / 
-                                    (2 * (heightDifference - distance * Mathf.Tan(angleRad)) * Mathf.Pow(Mathf.Cos(angleRad), 2));
-
-            if (velocitySquared <= 0)
-            {
-                Debug.LogWarning("Cant throw. Not enough data");
-                return Vector3.zero;
-            }
-
-            float initialVelocity = Mathf.Sqrt(velocitySquared);
-
-            Vector3 velocityXZ = direction.normalized * initialVelocity * Mathf.Cos(angleRad);
-            float velocityY = initialVelocity * Mathf.Sin(angleRad);
-
-            Vector3 resultVelocity = velocityXZ;
-            resultVelocity.y = velocityY;
-
-            return resultVelocity;
+            ShowWindow();
         }
+        private void OnExitShowTrigger(Transform arg0)
+        {
+            HideWindow();
+        }
+
+        
+        
+        #endregion
+        
+#if UNITY_EDITOR
+        public void SetTargetHex(GameObject go)
+        {
+            if (go.TryGetComponent(out HexController hexController))
+            {
+                openableHex = hexController;
+                EditorUtility.SetDirty(this);
+            }
+        }
+#endif
     }
 }

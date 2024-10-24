@@ -5,12 +5,12 @@ namespace Core.Items
 {
     public class ItemSO : ScriptableObject
     {
-        public string UID { get; private set; }
-        public string ItemName { get; set; }
-        public string ItemDisplayName { get; set; }
-        public string ItemDescription { get; set; }
-        public Sprite Sprite { get; set; }
-        public GameObject Prefab { get; set; }
+        public string UID;
+        public string ItemName;
+        public string ItemDisplayName;
+        public string ItemDescription;
+        public Sprite Sprite;
+        public GameObject Prefab;
         
 #if UNITY_EDITOR
         public void SetGuid(string uid)
@@ -23,6 +23,7 @@ namespace Core.Items
         {
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 #endif
 

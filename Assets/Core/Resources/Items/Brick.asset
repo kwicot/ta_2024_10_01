@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa35199455c24154be49844e27a311b9, type: 3}
   m_Name: Brick
   m_EditorClassIdentifier: 
+  UID: a9a9fb0f-beb6-43ff-a6a2-2875b64defa7
+  ItemName: Brick
+  ItemDisplayName: Brick
+  ItemDescription: 
+  Sprite: {fileID: 21300000, guid: 9905249b5b03d6143b75f32047d7bec5, type: 3}
+  Prefab: {fileID: 7056276129537850491, guid: ca7331c8fc587ce41b9cb9f7a97b32bc, type: 3}

@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa35199455c24154be49844e27a311b9, type: 3}
   m_Name: Lumber
   m_EditorClassIdentifier: 
+  UID: 861c3ed9-09f3-408f-b508-a51dfe498ac7
+  ItemName: Lumber
+  ItemDisplayName: Lumber
+  ItemDescription: 
+  Sprite: {fileID: 21300000, guid: ee8ac9c8824ed3a41a3e5bf7ea63ba36, type: 3}
+  Prefab: {fileID: 4728883304037076940, guid: 0a4ca192cddd5c14c80e5a86379bf7d5, type: 3}

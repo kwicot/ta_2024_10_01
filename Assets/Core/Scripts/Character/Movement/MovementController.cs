@@ -8,13 +8,20 @@ namespace Core.Scripts.Character
     [RequireComponent(typeof(Rigidbody))]
     public class MovementController : MonoBehaviour, IMovementController
     {
-        [SerializeField] private float moveSpeed;
+        [SerializeField][Header("Movement")] private float moveSpeed;
         [SerializeField] private float acceleration = 10f;
         [SerializeField] private float slopeLimit = 45f;
-        
-        [SerializeField] private Vector3 rayOffset;
+       
+        [SerializeField][Header("GroundRay")] private Vector3 rayOffset;
         [SerializeField] private float rayDistance;
         [SerializeField] private float rayAngle;
+        [SerializeField] private LayerMask rayLayer;
+        
+        [SerializeField][Header("Step")] private float stepHeight = 0.5f;
+        [SerializeField] private float stepSmooth = 0.1f;
+        [SerializeField] private float stepRayDistance;
+
+        [SerializeField] private bool debug;
         
         [Inject] private IInput _input;
 
@@ -45,6 +52,8 @@ namespace Core.Scripts.Character
             {
                 Velocity = Vector3.Lerp(Velocity, Vector3.zero, acceleration * Time.deltaTime); 
             }
+            
+            StepClimb();
         }
         
         
@@ -54,6 +63,28 @@ namespace Core.Scripts.Character
             {
                 Vector3 targetPosition = _rb.position + Velocity * moveSpeed * Time.fixedDeltaTime;
                 _rb.MovePosition(targetPosition);
+            }
+        }
+        
+        private void StepClimb()
+        {
+            Vector3 origin = transform.position + Vector3.up * 0.1f;
+            Vector3 direction = transform.forward;
+            
+            if(debug)
+                Debug.DrawRay(origin, direction * stepRayDistance, Color.red);
+            
+            if (Physics.Raycast(origin, direction, out RaycastHit hitLower, stepRayDistance, rayLayer))
+            {
+                origin = transform.position + Vector3.up * stepHeight;
+                
+                if(debug)
+                    Debug.DrawRay(origin, direction * stepRayDistance, Color.red);
+                
+                if (!Physics.Raycast(origin, direction,  out RaycastHit hitUpper, stepRayDistance, rayLayer))
+                {
+                    _rb.MovePosition(transform.position + Vector3.up * stepSmooth);
+                }
             }
         }
 
@@ -67,7 +98,7 @@ namespace Core.Scripts.Character
             Ray ray = new Ray(startPosition, rotatedDirection);
             Debug.DrawRay(startPosition, rotatedDirection * rayDistance, Color.red);
             
-            if (Physics.Raycast(ray, out RaycastHit hitInfo, rayDistance))
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, rayDistance, rayLayer))
             {
                 if (hitInfo.transform.CompareTag("Hexagon"))
                     return true;

@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa35199455c24154be49844e27a311b9, type: 3}
   m_Name: Crystal
   m_EditorClassIdentifier: 
+  UID: 739da799-ba38-4bee-99e7-48c05e8a0bd1
+  ItemName: Crystal
+  ItemDisplayName: Crystal
+  ItemDescription: 
+  Sprite: {fileID: 21300000, guid: 4213b40c29c327f4596745ac5b41e703, type: 3}
+  Prefab: {fileID: 7594705982223253095, guid: f3223351c89701e40acc61bb18eb0ead, type: 3}

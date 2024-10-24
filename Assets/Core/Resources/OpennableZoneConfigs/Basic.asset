@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Basic
   m_EditorClassIdentifier: 
   needItems:
-  - ItemSO: {fileID: 11400000, guid: 8157b86bf1e69414dbf77c47d86bfee0, type: 2}
+  - ItemSO: {fileID: 11400000, guid: c3f3589f24e6c2b4c80bee8de55a0b17, type: 2}
     Count: 10
-  - ItemSO: {fileID: 11400000, guid: 5d720b47041ce64489d4a4ab2ab770ee, type: 2}
+  - ItemSO: {fileID: 11400000, guid: 21930969b929bbc4a85866c68c0487f2, type: 2}
     Count: 10
