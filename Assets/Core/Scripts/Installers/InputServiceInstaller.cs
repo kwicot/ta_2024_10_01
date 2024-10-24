@@ -10,11 +10,12 @@ namespace Core.Scripts.Character.Input
         
         public override void InstallBindings()
         {
+            Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(joystickInputControllerPrefab).AsSingle().NonLazy();
             
-            if(Application.isEditor || Application.platform != RuntimePlatform.Android)
-                Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(keyboardInputControllerPrefab).AsSingle().NonLazy();
-            else
-                Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(joystickInputControllerPrefab).AsSingle().NonLazy();
+            // if(Application.isEditor && Application.platform != RuntimePlatform.Android)
+            //     Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(keyboardInputControllerPrefab).AsSingle().NonLazy();
+            // else
+            //     Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(joystickInputControllerPrefab).AsSingle().NonLazy();
         }
     }
 }

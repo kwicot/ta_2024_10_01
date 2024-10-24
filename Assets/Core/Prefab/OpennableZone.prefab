@@ -162,10 +162,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openableHex: {fileID: 0}
-  openableZone: {fileID: 0}
   fillTrigger: {fileID: 2090276764715453505}
   showTrigger: {fileID: 2131769307499435577}
   config: {fileID: 11400000, guid: 8f955b6280eec564a99e846b9bb59658, type: 2}
+  itemSpawnOffset: {x: 0, y: 0.8, z: 0.5}
 --- !u!1 &4150478273128006796
 GameObject:
   m_ObjectHideFlags: 0

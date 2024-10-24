@@ -23,12 +23,12 @@ namespace Core
         [SerializeField] private TriggerZone fillTrigger;
         [SerializeField] private TriggerZone showTrigger;
         [SerializeField] private Config config;
+        [SerializeField] Vector3 itemSpawnOffset = new Vector3(0, 1f, 0);
 
         [Inject] private ZoneWindowPool zoneWindowPool;
         [Inject] ItemsAnimationController itemsAnimationController; 
         
         private const int _itemsSpawnPerSecond = 10;
-        private Vector3 _itemSpawnOffset = new Vector3(0, 1f, 0);
 
         private Dictionary<string, int> _collectedItemsMap;
 
@@ -142,8 +142,12 @@ namespace Core
 
         async void SpawnItem(ItemSO item)
         {
-            var obj = item.Prefab.Spawn(_targetInventory.transform.position + _itemSpawnOffset, Quaternion.identity);
-            obj.transform.position += _itemSpawnOffset;
+            Vector3 position = _targetInventory.transform.position;
+            Vector3 spawnPosition = position + _targetInventory.transform.right * itemSpawnOffset.x  
+                                             + _targetInventory.transform.up * itemSpawnOffset.y    
+                                             + _targetInventory.transform.forward * itemSpawnOffset.z;
+            
+            var obj = item.Prefab.Spawn(spawnPosition, Quaternion.identity);
             
             Vector3 targetPosition = OpennableTransform.position - Vector3.down;
             await itemsAnimationController.Throw(obj, targetPosition);

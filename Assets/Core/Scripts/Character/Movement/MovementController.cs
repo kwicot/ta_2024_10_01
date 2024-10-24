@@ -40,7 +40,7 @@ namespace Core.Scripts.Character
 
         private void Update()
         {
-            Vector3 targetDirection = new Vector3(_input.Horizontal, 0f, _input.Vertical).normalized;
+            Vector3 targetDirection = new Vector3(_input.Horizontal, 0f, _input.Vertical);
 
             _isCanMoveForwad = CanMoveForward();
 

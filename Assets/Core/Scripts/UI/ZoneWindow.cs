@@ -65,10 +65,10 @@ namespace Core
             if (_currentTween != null)
                 _currentTween.Complete();
             
-            _targetObject = null;
             _currentTween = rootPanel.transform.DOScale(Vector3.zero, Constants.ShowHideAnimationDuration);
             await _currentTween.AsyncWaitForCompletion();
             
+            _targetObject = null;
             rootPanel.SetActive(false);
         }
         
