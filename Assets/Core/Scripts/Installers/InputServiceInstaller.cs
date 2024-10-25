@@ -5,13 +5,14 @@ namespace Core.Scripts.Character.Input
 {
     public class InputServiceInstaller : MonoInstaller
     {
-        [SerializeField] GameObject keyboardInputControllerPrefab;
-        [SerializeField] GameObject joystickInputControllerPrefab;
-        
+        [SerializeField] private GameObject keyboardInputControllerPrefab;
+        [SerializeField] private GameObject joystickInputControllerPrefab;
+
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(joystickInputControllerPrefab).AsSingle().NonLazy();
-            
+            Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(joystickInputControllerPrefab)
+                .AsSingle().NonLazy();
+
             // if(Application.isEditor && Application.platform != RuntimePlatform.Android)
             //     Container.BindInterfacesAndSelfTo<IInput>().FromComponentInNewPrefab(keyboardInputControllerPrefab).AsSingle().NonLazy();
             // else

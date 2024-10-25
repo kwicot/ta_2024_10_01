@@ -13,13 +13,13 @@ namespace Kwicot.Core.Scripts.Utils.SimplePoolSystem
                 obj.SetActive(true);
                 obj.transform.position = position;
                 obj.transform.rotation = rotation;
-                
+
                 return obj;
             }
 
             return null;
         }
-        
+
         public static GameObject Spawn(this GameObject gameObject)
         {
             if (gameObject != null)
@@ -27,7 +27,7 @@ namespace Kwicot.Core.Scripts.Utils.SimplePoolSystem
                 var obj = LazyPoolManager.Instance.Get(gameObject);
 
                 obj.SetActive(true);
-                
+
                 return obj;
             }
 
@@ -36,16 +36,13 @@ namespace Kwicot.Core.Scripts.Utils.SimplePoolSystem
 
         public static void Release(this GameObject gameObject)
         {
-            if(gameObject != null)
+            if (gameObject != null)
                 gameObject.SetActive(false);
         }
 
         public static void Populate(GameObject gameObject, int count)
         {
-            if (gameObject != null)
-            {
-                LazyPoolManager.Instance.Populate(gameObject, count);
-            }
+            if (gameObject != null) LazyPoolManager.Instance.Populate(gameObject, count);
         }
     }
 }

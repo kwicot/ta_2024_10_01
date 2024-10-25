@@ -6,8 +6,8 @@ namespace Core
 {
     public class ZoneWindowInstaller : MonoInstaller
     {
-        [SerializeField] private ZoneWindow zoneWindowPrefab; 
-        [SerializeField] private int initialSize = 1; 
+        [SerializeField] private ZoneWindow zoneWindowPrefab;
+        [SerializeField] private int initialSize = 1;
 
         public override void InstallBindings()
         {

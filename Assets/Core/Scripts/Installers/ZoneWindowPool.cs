@@ -5,9 +5,9 @@ namespace Core.Scripts.Installers
 {
     public class ZoneWindowPool
     {
-        private List<ZoneWindow> _pool = new List<ZoneWindow>();
-        private ZoneWindow.Factory _factory;
-        private int _initialSize;
+        private readonly ZoneWindow.Factory _factory;
+        private readonly int _initialSize;
+        private readonly List<ZoneWindow> _pool = new();
 
         [Inject]
         public ZoneWindowPool(ZoneWindow.Factory factory, int initialSize)
@@ -15,12 +15,12 @@ namespace Core.Scripts.Installers
             _factory = factory;
             _initialSize = initialSize;
 
-            for (int i = 0; i < _initialSize; i++)
+            for (var i = 0; i < _initialSize; i++)
             {
-                ZoneWindow newInstance = _factory.Create();
+                var newInstance = _factory.Create();
                 newInstance.gameObject.SetActive(false);
                 newInstance.Hide();
-                
+
                 _pool.Add(newInstance);
             }
         }
@@ -28,15 +28,13 @@ namespace Core.Scripts.Installers
         public ZoneWindow GetZoneWindow()
         {
             foreach (var zoneWindow in _pool)
-            {
                 if (!zoneWindow.gameObject.activeInHierarchy)
                 {
                     zoneWindow.gameObject.SetActive(true);
                     return zoneWindow;
                 }
-            }
 
-            ZoneWindow newInstance = _factory.Create();
+            var newInstance = _factory.Create();
             _pool.Add(newInstance);
             return newInstance;
         }

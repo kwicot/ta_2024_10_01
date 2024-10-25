@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: a0a350649aab1164a9f8bdddbd2b7290
+labels:
+- ITemDatabase
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 11400000

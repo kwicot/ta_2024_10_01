@@ -19,10 +19,8 @@ namespace Core.Scripts
         private void Start()
         {
             foreach (var itemCountModel in items)
-            {
                 _targetInventory.AddItem(itemCountModel.ItemSO.UID, itemCountModel.Count);
-            }
-            
+
             Destroy(this);
         }
     }

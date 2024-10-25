@@ -18,35 +18,32 @@ namespace Core
 {
     public class OpennableZone : MonoBehaviour
     {
-        [SerializeField] HexController openableHex;
-        
+        private const int _itemsSpawnPerSecond = 10;
+        [SerializeField] private HexController openableHex;
+
         [SerializeField] private TriggerZone fillTrigger;
         [SerializeField] private TriggerZone showTrigger;
         [SerializeField] private Config config;
-        [SerializeField] Vector3 itemSpawnOffset = new Vector3(0, 1f, 0);
-
-        [Inject] private ZoneWindowPool zoneWindowPool;
-        [Inject] ItemsAnimationController itemsAnimationController; 
-        
-        private const int _itemsSpawnPerSecond = 10;
-
-        private Dictionary<string, int> _collectedItemsMap;
+        [SerializeField] private Vector3 itemSpawnOffset = new(0, 1f, 0);
 
         private Coroutine _fillCoroutine;
-        
+
         private Inventory _targetInventory;
-        
-        public Dictionary<string, int> CollectedItemsMap => _collectedItemsMap;
-        public Config Config => config;
-        
-        public Transform OpennableTransform => openableHex.transform;
+
+        private ZoneWindow _zoneWindow;
+        [Inject] private ItemsAnimationController itemsAnimationController;
 
         public UnityAction OnCollectedItemsChanged;
 
-        private ZoneWindow _zoneWindow;
-        
-        
-        
+        [Inject] private ZoneWindowPool zoneWindowPool;
+
+        public Dictionary<string, int> CollectedItemsMap { get; private set; }
+
+        public Config Config => config;
+
+        public Transform OpennableTransform => openableHex.transform;
+
+
         private void Awake()
         {
             fillTrigger.onTriggerEnter += OnEnterFillTrigger;
@@ -55,7 +52,7 @@ namespace Core
             showTrigger.onTriggerEnter += OnEnterShowTrigger;
             showTrigger.onTriggerExit += OnExitShowTrigger;
 
-            _collectedItemsMap = new Dictionary<string, int>();
+            CollectedItemsMap = new Dictionary<string, int>();
         }
 
         private void Start()
@@ -64,32 +61,27 @@ namespace Core
         }
 
 
-        IEnumerator FillUpdateCoroutine()
+        private IEnumerator FillUpdateCoroutine()
         {
-            Debug.Log("StartFillCoroutine");
-            float fillInterval = 1f / _itemsSpawnPerSecond;
+            var fillInterval = 1f / _itemsSpawnPerSecond;
 
             foreach (var itemCountModel in config.Items)
             {
                 if (!_targetInventory.Contains(itemCountModel.ItemSO))
                 {
-                    Debug.Log($"Cant find {itemCountModel.ItemSO.ItemDisplayName} ion inventory");
                     continue;
                 }
 
-                if (_collectedItemsMap.TryGetValue(itemCountModel.ItemSO.UID, out int count))
+                if (CollectedItemsMap.TryGetValue(itemCountModel.ItemSO.UID, out var count))
                 {
-                    int need = itemCountModel.Count - count;
+                    var need = itemCountModel.Count - count;
                     if (need <= 0)
                     {
-                        Debug.Log($"Need {itemCountModel.ItemSO.ItemDisplayName} <= 0");
                         continue;
                     }
 
-                    for (int i = 0; i < need; i++)
+                    for (var i = 0; i < need; i++)
                     {
-                        Debug.Log("Spawn");
-
                         SpawnItem(itemCountModel.ItemSO);
                         _targetInventory.RemoveItem(itemCountModel.ItemSO);
 
@@ -98,10 +90,8 @@ namespace Core
                 }
                 else
                 {
-                    for (int i = 0; i < itemCountModel.Count; i++)
+                    for (var i = 0; i < itemCountModel.Count; i++)
                     {
-                        Debug.Log("Spawn");
-
                         SpawnItem(itemCountModel.ItemSO);
                         _targetInventory.RemoveItem(itemCountModel.ItemSO);
 
@@ -110,111 +100,75 @@ namespace Core
                 }
             }
 
-            Debug.Log("End fillCoroutine");
         }
 
-        void Fill(ItemSO item)
+        private void Fill(ItemSO item)
         {
-            if(!_collectedItemsMap.TryAdd(item.UID, 1))
-                _collectedItemsMap[item.UID]++;
-            
+            if (!CollectedItemsMap.TryAdd(item.UID, 1))
+                CollectedItemsMap[item.UID]++;
+
             OnCollectedItemsChanged?.Invoke();
 
             foreach (var itemCountModel in config.Items)
-            {
-                if(!_collectedItemsMap.TryGetValue(itemCountModel.ItemSO.UID, out int count) || count < itemCountModel.Count)
+                if (!CollectedItemsMap.TryGetValue(itemCountModel.ItemSO.UID, out var count) ||
+                    count < itemCountModel.Count)
                     return;
-            }
-            
+
             OnFilled();
         }
 
-        async void OnFilled()
+        private async void OnFilled()
         {
             await openableHex.SetEnable(true);
             await HideWindow();
             await HideFillPanel();
-            
+
             Destroy(fillTrigger.gameObject);
             Destroy(showTrigger.gameObject);
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
 
-        async void SpawnItem(ItemSO item)
+        private async void SpawnItem(ItemSO item)
         {
-            Vector3 position = _targetInventory.transform.position;
-            Vector3 spawnPosition = position + _targetInventory.transform.right * itemSpawnOffset.x  
-                                             + _targetInventory.transform.up * itemSpawnOffset.y    
-                                             + _targetInventory.transform.forward * itemSpawnOffset.z;
-            
+            var position = _targetInventory.transform.position;
+            var spawnPosition = position + _targetInventory.transform.right * itemSpawnOffset.x
+                                         + _targetInventory.transform.up * itemSpawnOffset.y
+                                         + _targetInventory.transform.forward * itemSpawnOffset.z;
+
             var obj = item.Prefab.Spawn(spawnPosition, Quaternion.identity);
-            
-            Vector3 targetPosition = OpennableTransform.position - Vector3.down;
+
+            var targetPosition = OpennableTransform.position - Vector3.down;
             await itemsAnimationController.Throw(obj, targetPosition);
             obj.Release();
-            
+
             Fill(item);
         }
 
-        void ShowWindow()
+        private void ShowWindow()
         {
             _zoneWindow = zoneWindowPool.GetZoneWindow();
             _zoneWindow.Show(this);
         }
 
-        async Task HideWindow()
+        private async Task HideWindow()
         {
             await _zoneWindow.Hide();
             zoneWindowPool.ReturnZoneWindow(_zoneWindow);
         }
 
-        void ShowFillPanel()
+        private void ShowFillPanel()
         {
             fillTrigger.gameObject.SetActive(true);
             fillTrigger.transform.DOScale(Vector3.one, Constants.ShowHideAnimationDuration);
         }
 
-        async Task HideFillPanel()
+        private async Task HideFillPanel()
         {
-            await fillTrigger.transform.DOScale(Vector3.zero, Constants.ShowHideAnimationDuration).AsyncWaitForCompletion();
+            await fillTrigger.transform.DOScale(Vector3.zero, Constants.ShowHideAnimationDuration)
+                .AsyncWaitForCompletion();
             fillTrigger.gameObject.SetActive(false);
         }
-        
-        
-        #region TriggerCallbacks
 
-        private void OnExitFillTrigger(Transform arg)
-        {
-            if (_fillCoroutine != null)
-                StopCoroutine(_fillCoroutine);
-            
-            _fillCoroutine = null;
-            _targetInventory = null;
-        }
-
-        private void OnEnterFillTrigger(Transform arg)
-        {
-            _targetInventory = arg.GetComponent<Inventory>();
-            
-            if (_targetInventory != null)
-            { 
-                _fillCoroutine = StartCoroutine(FillUpdateCoroutine());
-            }
-        }
-        
-        private void OnEnterShowTrigger(Transform arg0)
-        {
-            ShowWindow();
-        }
-        private void OnExitShowTrigger(Transform arg0)
-        {
-            HideWindow();
-        }
-
-        
-        
-        #endregion
-        
 #if UNITY_EDITOR
         public void SetTargetHex(GameObject go)
         {
@@ -225,5 +179,36 @@ namespace Core
             }
         }
 #endif
+
+
+        #region TriggerCallbacks
+
+        private void OnExitFillTrigger(Transform arg)
+        {
+            if (_fillCoroutine != null)
+                StopCoroutine(_fillCoroutine);
+
+            _fillCoroutine = null;
+            _targetInventory = null;
+        }
+
+        private void OnEnterFillTrigger(Transform arg)
+        {
+            _targetInventory = arg.GetComponent<Inventory>();
+
+            if (_targetInventory != null) _fillCoroutine = StartCoroutine(FillUpdateCoroutine());
+        }
+
+        private void OnEnterShowTrigger(Transform arg0)
+        {
+            ShowWindow();
+        }
+
+        private void OnExitShowTrigger(Transform arg0)
+        {
+            HideWindow();
+        }
+
+        #endregion
     }
 }

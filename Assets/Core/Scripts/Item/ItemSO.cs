@@ -11,7 +11,7 @@ namespace Core.Items
         public string ItemDescription;
         public Sprite Sprite;
         public GameObject Prefab;
-        
+
 #if UNITY_EDITOR
         public void SetGuid(string uid)
         {
@@ -26,6 +26,5 @@ namespace Core.Items
             AssetDatabase.Refresh();
         }
 #endif
-
     }
 }

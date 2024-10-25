@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Core.Scripts.Character.Input
+﻿namespace Core.Scripts.Character.Input
 {
     public interface IInput
     {

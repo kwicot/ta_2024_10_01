@@ -1,5 +1,4 @@
-﻿using MyBox;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace Core.Scripts.Character
@@ -7,10 +6,10 @@ namespace Core.Scripts.Character
     public class PlayerInstaller : MonoInstaller
     {
         [SerializeField] private Player playerInstance;
-        
+
         public override void InstallBindings()
         {
-            Container.Bind<Player>().FromInstance(playerInstance).AsSingle().NonLazy();
+            Container.Bind<Player>().FromInstance(playerInstance).AsSingle().Lazy();
         }
     }
 }

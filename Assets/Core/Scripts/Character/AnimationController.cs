@@ -6,10 +6,9 @@ namespace Core.Scripts.Character
     [RequireComponent(typeof(Animator))]
     public class AnimationController : MonoBehaviour
     {
-        [Inject] IMovementController _movementController;
-        Animator _animator;
-
         private const string _speedParameterName = "speed";
+        private Animator _animator;
+        [Inject] private IMovementController _movementController;
 
         private void Awake()
         {
@@ -18,7 +17,7 @@ namespace Core.Scripts.Character
 
         private void Update()
         {
-            float speed = _movementController.Velocity.magnitude;
+            var speed = _movementController.Velocity.magnitude;
             _animator.SetFloat(_speedParameterName, speed);
         }
     }

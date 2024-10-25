@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,33 +8,38 @@ namespace Kwicot.Core.Scripts.Utils
 {
     public static class PersistentCache
     {
-        private static bool _initialized = false;
+        private static readonly bool _initialized = false;
         private static bool _isLog;
-        
+
         private static void Initialize()
         {
         }
-        public static void Save(object data) => Save(data, data.GetType().ToString());
+
+        public static void Save(object data)
+        {
+            Save(data, data.GetType().ToString());
+        }
+
         public static void Save(object data, string key)
         {
             if (!_initialized)
                 Initialize();
-            
-            if(data == null)
+
+            if (data == null)
                 return;
 
             var path = GetPath(key);
-                
-            if(File.Exists(path))
+
+            if (File.Exists(path))
                 File.Delete(path);
-            
+
             var bf = new BinaryFormatter();
             var fs = new FileStream(path, FileMode.OpenOrCreate);
-            
+
             try
             {
                 bf.Serialize(fs, data);
-                
+
                 fs.Close();
             }
             catch (Exception e)
@@ -45,11 +48,12 @@ namespace Kwicot.Core.Scripts.Utils
                 fs.Close();
             }
         }
+
         public static T TryLoad<T>(string key, T defaultValue = default)
         {
-            if(!_initialized)
+            if (!_initialized)
                 Initialize();
-            
+
             var path = GetPath(key);
             if (File.Exists(path))
             {
@@ -67,36 +71,39 @@ namespace Kwicot.Core.Scripts.Utils
                     fs.Close();
                     return defaultValue;
                 }
-                
             }
-            else
-            {
-                Debug.LogError($"Try to load {path} but doesnt exists");
-                return defaultValue;
-            }
+
+            Debug.LogError($"Try to load {path} but doesnt exists");
+            return defaultValue;
         }
-        public static T TryLoad<T>() => TryLoad<T>(typeof(T).ToString());
-        public static T TryLoad<T>(T defaultValue) => TryLoad<T>(typeof(T).ToString(), defaultValue);
+
+        public static T TryLoad<T>()
+        {
+            return TryLoad<T>(typeof(T).ToString());
+        }
+
+        public static T TryLoad<T>(T defaultValue)
+        {
+            return TryLoad(typeof(T).ToString(), defaultValue);
+        }
 
 
         public static void TryDelete(string key)
         {
-            if(!_initialized)
+            if (!_initialized)
                 Initialize();
-            
+
             var path = GetPath(key);
-            if(File.Exists(path))
+            if (File.Exists(path))
                 File.Delete(path);
         }
+
         public static void TryDelete(params string[] keys)
         {
-            if(!_initialized)
+            if (!_initialized)
                 Initialize();
-            
-            foreach (var key in keys)
-            {
-               TryDelete(key);
-            }
+
+            foreach (var key in keys) TryDelete(key);
         }
 
 
@@ -119,31 +126,32 @@ namespace Kwicot.Core.Scripts.Utils
             return JsonConvert.DeserializeObject<T>(json);
         }
 #endif
-        
-        
-        static string GetPath(string key)
+
+
+        private static string GetPath(string key)
         {
-            if(!_initialized)
+            if (!_initialized)
                 Initialize();
-            
+
             var path = Application.persistentDataPath;
             return Path.Combine(path, key);
         }
 
-        static void Log(object data)
+        private static void Log(object data)
         {
-            if(_isLog)
+            if (_isLog)
                 Debug.Log(data);
         }
-        static void LogWarning(object data)
+
+        private static void LogWarning(object data)
         {
-            if(_isLog)
+            if (_isLog)
                 Debug.LogWarning(data);
         }
 
-        static void LogError(object data)
+        private static void LogError(object data)
         {
-            if(_isLog)
+            if (_isLog)
                 Debug.LogError(data);
         }
 
@@ -153,14 +161,11 @@ namespace Kwicot.Core.Scripts.Utils
 
         public static void ClearPersistentCache()
         {
-            if(!_initialized)
+            if (!_initialized)
                 Initialize();
-            
+
             var files = Directory.GetFiles(Application.persistentDataPath);
-            foreach (var file in files)
-            {
-                File.Delete(file);
-            }
+            foreach (var file in files) File.Delete(file);
         }
 #if UNITY_EDITOR
         [MenuItem("Tools/PersistentCache/Clear player prefs cache")]
@@ -169,7 +174,7 @@ namespace Kwicot.Core.Scripts.Utils
         {
             PlayerPrefs.DeleteAll();
         }
-        
+
 #if UNITY_EDITOR
         [MenuItem("Tools/PersistentCache/Clear all cache")]
 #endif
@@ -179,6 +184,5 @@ namespace Kwicot.Core.Scripts.Utils
             ClearPersistentCache();
             ClearPrefsCache();
         }
-        
     }
 }

@@ -8,16 +8,8 @@ namespace Core.Items.Editor
 {
     public class DatabaseWindow : EditorWindow
     {
-        private ItemDatabaseSO ItemDatabaseSO => ItemDatabaseSO.Instance;
         private Vector2 _scrollPosition;
-
-        
-        
-        [MenuItem("Window/Items database")]
-        public static void ShowWindow()
-        {
-            var window = GetWindow<DatabaseWindow>("Items database");
-        }
+        private ItemDatabaseSO ItemDatabaseSO => ItemDatabaseSO.Instance;
 
 
         private void OnGUI()
@@ -25,7 +17,7 @@ namespace Core.Items.Editor
             EditorGUILayout.BeginHorizontal("box");
             if (GUILayout.Button("Add Item"))
             {
-                var item = ScriptableObject.CreateInstance<ItemSO>();
+                var item = CreateInstance<ItemSO>();
                 item.SetGuid(UtilsClass.GenerateUniqueID());
                 item.ItemName = item.UID;
 
@@ -33,7 +25,7 @@ namespace Core.Items.Editor
                 EditorUtility.SetDirty(item);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                
+
                 ItemDatabaseSO.LoadItems();
             }
 
@@ -43,11 +35,11 @@ namespace Core.Items.Editor
                 {
                     var path = AssetDatabase.GetAssetPath(item);
                     var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
-                    
+
                     EditorUtility.SetDirty(item);
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
-                    
+
                     //Rename
                     if (fileNameWithoutExtension != item.ItemName)
                     {
@@ -65,7 +57,7 @@ namespace Core.Items.Editor
                         }
                     }
                 }
-                
+
                 ItemDatabaseSO.Save();
             }
 
@@ -77,18 +69,19 @@ namespace Core.Items.Editor
             foreach (var item in ItemDatabaseSO.ItemsMap.Values)
             {
                 EditorGUILayout.BeginVertical("box");
-                
+
                 GUI.enabled = false;
                 EditorGUILayout.TextField("UID", item.UID);
                 GUI.enabled = true;
 
                 item.ItemName = EditorGUILayout.TextField("File name", item.ItemName);
                 item.ItemDisplayName = EditorGUILayout.TextField("Display name", item.ItemDisplayName);
-                
+
                 item.ItemDescription = EditorGUILayout.TextField("Description", item.ItemDescription);
-                
+
                 item.Sprite = EditorGUILayout.ObjectField("Sprite", item.Sprite, typeof(Sprite), false) as Sprite;
-                item.Prefab = EditorGUILayout.ObjectField("Prefab", item.Prefab, typeof(GameObject), false) as GameObject;
+                item.Prefab =
+                    EditorGUILayout.ObjectField("Prefab", item.Prefab, typeof(GameObject), false) as GameObject;
 
 
                 EditorGUILayout.BeginHorizontal("box");
@@ -97,7 +90,7 @@ namespace Core.Items.Editor
                     EditorUtility.FocusProjectWindow();
                     Selection.activeObject = item;
                 }
-                
+
                 if (GUILayout.Button("Remove Item"))
                 {
                     ItemDatabaseSO.ItemsMap.Remove(item.UID);
@@ -108,13 +101,20 @@ namespace Core.Items.Editor
 
                     return;
                 }
-                
+
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.EndVertical();
             }
 
             EditorGUILayout.EndScrollView();
+        }
+
+
+        [MenuItem("Window/Items database")]
+        public static void ShowWindow()
+        {
+            var window = GetWindow<DatabaseWindow>("Items database");
         }
     }
 }
